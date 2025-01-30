@@ -15,10 +15,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ReminderListFragment : BaseFragment() {
 
-    companion object {
-        const val SIGN_IN_RESULT_CODE = 1001
-    }
-
     // Use Koin to retrieve the ViewModel instance
     override val _viewModel: RemindersListViewModel by viewModel()
     private lateinit var binding: FragmentRemindersBinding
@@ -31,7 +27,6 @@ class ReminderListFragment : BaseFragment() {
             R.layout.fragment_reminders, container, false
         )
         binding.viewModel = _viewModel
-
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(false)
         setTitle(getString(R.string.app_name))
@@ -39,25 +34,8 @@ class ReminderListFragment : BaseFragment() {
         return binding.root
     }
 
-
-
-    private fun launchSignInFlow() {
-        val providers = arrayListOf(
-            AuthUI.IdpConfig.EmailBuilder().build(), AuthUI.IdpConfig.GoogleBuilder().build()
-        )
-
-        startActivityForResult(
-            AuthUI.getInstance()
-                .createSignInIntentBuilder()
-                .setAvailableProviders(providers)
-                .build(),
-            ReminderListFragment.SIGN_IN_RESULT_CODE
-        )
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        launchSignInFlow()
 
         binding.lifecycleOwner = this
         setupRecyclerView()
