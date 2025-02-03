@@ -31,13 +31,14 @@ class AuthenticationActivity : AppCompatActivity() {
 
     private val signInLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            Log.i(TAG, "signInLauncher. result: $result")
             if (result.resultCode == Activity.RESULT_OK) {
                 // User successfully signed in
                 val user = FirebaseAuth.getInstance().currentUser
-                Log.i(TAG, "signInLauncher. User signed in: ${user?.displayName}")
+                Log.i(TAG, "Successfully signed in user ${user?.displayName}!")
             } else {
                 // Sign-in failed
-                Log.e(TAG, "signInLauncher. Sign-in failed")
+                Log.i(TAG, "Sign in unsuccessful")
             }
         }
 
@@ -55,9 +56,9 @@ class AuthenticationActivity : AppCompatActivity() {
         setContentView(R.layout.activity_authentication)
 
         // TODO: Implement the create account and sign in using FirebaseUI,
-        //  use sign in using email and sign in using Google
+        //  use sign in using email and sign in using Google (x)
 
-        // TODO: If the user was authenticated, send him to RemindersActivity
+        // TODO: If the user was authenticated, send him to RemindersActivity (x)
 
         observeAuthenticationState()
 
@@ -93,7 +94,11 @@ class AuthenticationActivity : AppCompatActivity() {
             .setAvailableProviders(providers)
             .build()
 
-        signInLauncher.launch(signInIntent)
+        try {
+            signInLauncher.launch(signInIntent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error launching sign-in intent: $e")
+        }
     }
 
 

@@ -75,7 +75,7 @@ class ReminderListFragment : BaseFragment() {
         when (item.itemId) {
             R.id.logout -> {
                 Log.i(TAG, "logging out user")
-                // TODO: add the logout implementation
+                // TODO: add the logout implementation (x)
                 AuthUI.getInstance().signOut(requireContext())
                 val intent = Intent(requireContext(), AuthenticationActivity::class.java)
                 startActivity(intent)
