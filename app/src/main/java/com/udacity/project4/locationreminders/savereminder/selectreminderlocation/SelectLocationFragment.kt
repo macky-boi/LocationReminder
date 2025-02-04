@@ -2,10 +2,13 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.location.Address
+import android.location.Geocoder
 import android.net.Uri
 import com.google.android.gms.location.LocationRequest
 import android.os.Build
@@ -20,6 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -33,6 +37,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.PointOfInterest
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
@@ -40,7 +45,10 @@ import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
+import java.util.Locale
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
     companion object {
@@ -53,6 +61,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     private var currentMarker: Marker? = null
+
+    private var currentLatitude: Double? = null
+    private var currentLongitude: Double? = null
+    private var currentSelectedPOI: PointOfInterest? = null
+    private var currentSelectedLocationStr: String? = null
 
     // Use Koin to get the view model of the SaveReminder
     override val _viewModel: SaveReminderViewModel by inject()
@@ -93,22 +106,69 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
         }
         checkPermissionsAndEnableLocation()
 
-        // !!!
         binding.saveButton.setOnClickListener {
-
+            // TODO: call this function after the user confirms on the selected location (x)
+            onLocationSelected()
         }
 
-
-        // TODO: call this function after the user confirms on the selected location
-        onLocationSelected()
         return binding.root
+    }
+
+    private fun getStreetName(lat: Double, lon: Double, context: Context, onResult: (String) -> Unit) {
+        val geocoder = Geocoder(context, Locale.getDefault())
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+ (API 33+)
+            geocoder.getFromLocation(lat, lon, 1
+            ) { addresses ->
+                val streetName = addresses.firstOrNull()?.thoroughfare ?: "Unknown Street"
+                onResult(streetName) // Callback with street name
+            }
+        } else {
+            // Fallback for older versions
+            try {
+                val addresses = geocoder.getFromLocation(lat, lon, 1)
+                val streetName = addresses?.firstOrNull()?.thoroughfare ?: "Unknown Street"
+                onResult(streetName)
+            } catch (e: Exception) {
+                Log.e("Geocoder", "Error: ${e.message}")
+                onResult("Unknown Street")
+            }
+        }
     }
 
     private fun setMapClick(map:GoogleMap) {
         map.setOnMapClickListener { latLng ->
+            val longitude = latLng.longitude
+            val latitude  = latLng.latitude
+
             currentMarker?.remove()
             currentMarker = map.addMarker(MarkerOptions().position(latLng).title("Selected Location"))
+
+            currentLongitude = longitude
+            currentLatitude = latitude
+            getStreetName(latitude, longitude, requireContext(), {
+                streetName ->
+                Log.i(TAG, "streetName: $streetName")
+                currentSelectedLocationStr = streetName
+            })
         }
+        map.setOnPoiClickListener { poi ->
+            val longitude = poi.latLng.longitude
+            val latitude  = poi.latLng.latitude
+
+            currentMarker?.remove()
+            currentMarker = map.addMarker(MarkerOptions().position(poi.latLng).title("Selected Location"))
+
+            currentSelectedPOI = poi
+            currentLongitude = longitude
+            currentLatitude = latitude
+            getStreetName(latitude, longitude, requireContext(), {
+                    streetName ->
+                Log.i(TAG, "streetName: $streetName")
+                currentSelectedLocationStr = streetName
+            })
+        }
+
     }
 
     private fun setMapStyle(map: GoogleMap) {
@@ -225,8 +285,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
     private fun onLocationSelected() {
         // TODO: When the user confirms on the selected location,
         //  send back the selected location details to the view model
-        //  and navigate back to the previous fragment to save the reminder and add the geofence
+        //  and navigate back to the previous fragment to save the reminder and add the geofence (x)
+        _viewModel.selectedPOI.value = currentSelectedPOI
+        _viewModel.latitude.value = currentLatitude
+        _viewModel.longitude.value = currentLongitude
+        _viewModel.reminderSelectedLocationStr.value = currentSelectedLocationStr
+        _viewModel.navigationCommand.value = NavigationCommand.Back
     }
+
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.map_options, menu)
