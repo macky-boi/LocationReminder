@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.net.Uri
 import com.google.android.gms.location.LocationRequest
 import android.os.Build
@@ -20,6 +21,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
@@ -28,6 +30,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
@@ -45,6 +48,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
 
     private lateinit var mMap: GoogleMap
     private lateinit var locationSettingsLauncher: ActivityResultLauncher<IntentSenderRequest>
+
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     // Use Koin to get the view model of the SaveReminder
     override val _viewModel: SaveReminderViewModel by inject()
@@ -68,17 +73,23 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
         mapFragment.getMapAsync(this)
 
         // TODO: zoom to the user location after taking his permission
-        checkPermissionsAndEnableLocation()
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
         locationSettingsLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 Log.i(TAG, "locationSettingsLauncher - location settings request accepted")
                 enableMyLocation()
             } else {
                 Log.i(TAG, "locationSettingsLauncher - location settings request denied")
-                _viewModel.navigationCommand.value = NavigationCommand.Back
-                _viewModel.showToast.value = "Device location settings is required"
+                Snackbar.make(
+                    requireView(),
+                    R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
+                ).setAction(android.R.string.ok) {
+                    checkDeviceLocationSettingsAndStartLocation()
+                }.show()
             }
         }
+        checkPermissionsAndEnableLocation()
+
 
         // TODO: add style to the map
         // TODO: put a marker to location that the user selected
@@ -86,6 +97,22 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
         // TODO: call this function after the user confirms on the selected location
         onLocationSelected()
         return binding.root
+    }
+
+    private fun setMapStyle(map: GoogleMap) {
+        try {
+            val success = map.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                    requireContext(),
+                    R.raw.map_style
+                )
+            )
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.")
+            }
+        } catch (e: Resources.NotFoundException) {
+            Log.e(TAG, "Can't find style. Error: ", e)
+        }
     }
 
 
@@ -142,12 +169,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
                     _viewModel.showToast.value = "Error getting location settings resolution"
                 }
             } else {
-                Snackbar.make(
-                    requireView(),
-                    R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
-                ).setAction(android.R.string.ok) {
-                    checkDeviceLocationSettingsAndStartLocation()
-                }.show()
+                _viewModel.navigationCommand.value = NavigationCommand.Back
+                _viewModel.showToast.value = "Device location settings is required"
             }
         }
         locationSettingsResponseTask.addOnCompleteListener {
@@ -165,17 +188,21 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.isMyLocationEnabled = true
             Log.i(TAG, "enableMyLocation - enabled")
+
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+                location?.let {
+                    val userLatLng = LatLng(location.latitude, location.longitude)
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15f))
+                }
+            }
+
         }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         Log.i(TAG, "onMapReady")
         mMap = googleMap
-
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        setMapStyle(googleMap)
     }
 
     private fun onLocationSelected() {
