@@ -71,9 +71,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
         checkPermissionsAndEnableLocation()
         locationSettingsLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                // If the result is OK, location settings are now enabled.
-                checkDeviceLocationSettingsAndStartLocation(false)
+                Log.i(TAG, "locationSettingsLauncher - location settings request accepted")
+                enableMyLocation()
             } else {
+                Log.i(TAG, "locationSettingsLauncher - location settings request denied")
                 _viewModel.navigationCommand.value = NavigationCommand.Back
                 _viewModel.showToast.value = "Device location settings is required"
             }
@@ -96,7 +97,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
             } else {
                 Log.i(TAG, "requestPermissionLauncher - NOT granted")
                 _viewModel.navigationCommand.value = NavigationCommand.Back
-                _viewModel.showSnackBar.value = "Permission Denied"
+                _viewModel.showSnackBar.value = "Turn on location permission on application settings"
             }
         }
 
@@ -130,13 +131,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
             settingsClient.checkLocationSettings(builder.build())
 
         locationSettingsResponseTask.addOnFailureListener { exception ->
-            Log.i(TAG, "checkDeviceLocationSettingsAndStartLocation - locaton settings are OFF")
+            Log.i(TAG, "checkDeviceLocationSettingsAndStartLocation - addOnFailureListener")
             if (exception is ResolvableApiException && resolve){
                 try {
                     Log.i(TAG, "checkDeviceLocationSettingsAndStartLocation - attempting REQUEST_TURN_DEVICE_LOCATION_ON")
-                    exception.startResolutionForResult(requireActivity(),
-                        REQUEST_TURN_DEVICE_LOCATION_ON)
+                    val intentSenderRequest = IntentSenderRequest.Builder(exception.resolution).build()
+                    locationSettingsLauncher.launch(intentSenderRequest)
                 } catch (sendEx: IntentSender.SendIntentException) {
+                    Log.i(TAG, "checkDeviceLocationSettingsAndStartLocation - attempt to REQUEST_TURN_DEVICE_LOCATION_ON failed")
                     _viewModel.showToast.value = "Error getting location settings resolution"
                 }
             } else {
@@ -149,8 +151,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
             }
         }
         locationSettingsResponseTask.addOnCompleteListener {
-            Log.i(TAG, "checkDeviceLocationSettingsAndStartLocation - locaton settings are ON")
+            Log.i(TAG, "checkDeviceLocationSettingsAndStartLocation - addOnCompleteListener")
             if ( it.isSuccessful ) {
+                Log.i(TAG, "checkDeviceLocationSettingsAndStartLocation - enabling myLocation")
                 enableMyLocation()
             }
         }
