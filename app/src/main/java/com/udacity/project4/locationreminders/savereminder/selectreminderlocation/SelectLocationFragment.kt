@@ -24,6 +24,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -61,6 +62,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     private var currentMarker: Marker? = null
+    private val haveSelected = MutableLiveData<Boolean>(false)
 
     private var currentLatitude: Double? = null
     private var currentLongitude: Double? = null
@@ -111,6 +113,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
             onLocationSelected()
         }
 
+
+        haveSelected.observe(viewLifecycleOwner, Observer {
+            binding.saveButton.isEnabled = haveSelected.value ?: false 
+        })
+
         return binding.root
     }
 
@@ -151,6 +158,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
                 Log.i(TAG, "streetName: $streetName")
                 currentSelectedLocationStr = streetName
             })
+
+            haveSelected.value = true
         }
         map.setOnPoiClickListener { poi ->
             val longitude = poi.latLng.longitude
@@ -167,6 +176,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
                 Log.i(TAG, "streetName: $streetName")
                 currentSelectedLocationStr = streetName
             })
+
+            haveSelected.value = true
         }
 
     }
@@ -301,15 +312,19 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         // TODO: Change the map type based on the user's selection.
         R.id.normal_map -> {
+            mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
             true
         }
         R.id.hybrid_map -> {
+            mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
             true
         }
         R.id.satellite_map -> {
+            mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
             true
         }
         R.id.terrain_map -> {
+            mMap.mapType = GoogleMap.MAP_TYPE_TERRAIN
             true
         }
         else -> super.onOptionsItemSelected(item)
