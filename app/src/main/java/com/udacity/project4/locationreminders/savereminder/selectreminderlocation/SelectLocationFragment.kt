@@ -72,7 +72,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        // TODO: zoom to the user location after taking his permission
+        // TODO: zoom to the user location after taking his permission (x)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
         locationSettingsLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -91,12 +91,18 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
         checkPermissionsAndEnableLocation()
 
 
-        // TODO: add style to the map
-        // TODO: put a marker to location that the user selected
-
         // TODO: call this function after the user confirms on the selected location
         onLocationSelected()
         return binding.root
+    }
+
+    private fun setMapClick(map:GoogleMap) {
+        map.setOnMapClickListener { latLng ->
+            map.addMarker(
+                MarkerOptions()
+                    .position(latLng)
+            )
+        }
     }
 
     private fun setMapStyle(map: GoogleMap) {
@@ -202,7 +208,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
     override fun onMapReady(googleMap: GoogleMap) {
         Log.i(TAG, "onMapReady")
         mMap = googleMap
+
+        // TODO: add style to the map (x)
         setMapStyle(googleMap)
+
+        // TODO: put a marker to location that the user selected
+        setMapClick(googleMap)
     }
 
     private fun onLocationSelected() {
