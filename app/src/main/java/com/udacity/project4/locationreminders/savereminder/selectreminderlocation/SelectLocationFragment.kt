@@ -31,6 +31,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
@@ -50,6 +51,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
     private lateinit var locationSettingsLauncher: ActivityResultLauncher<IntentSenderRequest>
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
+    private var currentMarker: Marker? = null
 
     // Use Koin to get the view model of the SaveReminder
     override val _viewModel: SaveReminderViewModel by inject()
@@ -90,6 +93,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
         }
         checkPermissionsAndEnableLocation()
 
+        // !!!
+        binding.saveButton.setOnClickListener {
+
+        }
+
 
         // TODO: call this function after the user confirms on the selected location
         onLocationSelected()
@@ -98,10 +106,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
 
     private fun setMapClick(map:GoogleMap) {
         map.setOnMapClickListener { latLng ->
-            map.addMarker(
-                MarkerOptions()
-                    .position(latLng)
-            )
+            currentMarker?.remove()
+            currentMarker = map.addMarker(MarkerOptions().position(latLng).title("Selected Location"))
         }
     }
 
