@@ -1,11 +1,9 @@
 package com.udacity.project4.locationreminders.geofence
 
-import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import androidx.core.content.ContextCompat
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
 import com.udacity.project4.R
@@ -38,8 +36,9 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             if (geofencingEvent?.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
                 Log.v(TAG, context.getString(R.string.geofence_entered))
 
+                val triggeredGeofence = geofencingEvent.triggeringGeofences
                 val fenceId = when {
-                    geofencingEvent.triggeringGeofences.isNullOrEmpty().not() ->
+                    triggeredGeofence.isNullOrEmpty().not() ->
                         geofencingEvent.triggeringGeofences?.get(0)?.requestId
                     else -> {
                         Log.e(TAG, "No Geofence Trigger Found! Abort mission!")
