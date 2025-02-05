@@ -115,7 +115,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
 
 
         haveSelected.observe(viewLifecycleOwner, Observer {
-            binding.saveButton.isEnabled = haveSelected.value ?: false 
+            binding.saveButton.isEnabled = haveSelected.value ?: false
         })
 
         return binding.root
@@ -310,7 +310,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        // TODO: Change the map type based on the user's selection.
+        // TODO: Change the map type based on the user's selection. (x)
         R.id.normal_map -> {
             mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
             true
