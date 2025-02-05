@@ -49,24 +49,12 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
                 Log.e(TAG, "fenceId: $fenceId")
 
-//                val foundIndex = GeofencingConstants.LANDMARK_DATA.indexOfFirst {
-//                    it.id == fenceId
-//                }
-//
-//                // Unknown Geofences aren't helpful to us
-//                if ( -1 == foundIndex ) {
-//                    Log.e(TAG, "Unknown Geofence: Abort Mission")
-//                    return
-//                }
-//
-//                val notificationManager = ContextCompat.getSystemService(
-//                    context,
-//                    NotificationManager::class.java
-//                ) as NotificationManager
-//
-//                notificationManager.sendGeofenceEnteredNotification(
-//                    context, foundIndex
-//                )
+                val serviceIntent = Intent(context, GeofenceTransitionsJobIntentService::class.java).apply {
+                    putExtra("fenceId", fenceId)
+                }
+
+                GeofenceTransitionsJobIntentService.enqueueWork(context, serviceIntent)
+
             }
         }
     }

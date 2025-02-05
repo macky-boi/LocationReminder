@@ -99,7 +99,7 @@ class SaveReminderFragment : BaseFragment() {
             // TODO: use the user entered reminder details to:
             //  1) add a geofencing request
             val geofence = Geofence.Builder()
-                .setRequestId(longitude.toString() + latitude.toString())
+                .setRequestId(location!!)
                 .setCircularRegion(latitude!!,
                     longitude!!,
                     GEOFENCE_RADIUS_IN_METERS
