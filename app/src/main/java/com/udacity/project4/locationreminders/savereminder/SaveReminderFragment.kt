@@ -19,7 +19,9 @@ import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSaveReminderBinding
+import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
+import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 import java.util.concurrent.TimeUnit
@@ -89,7 +91,7 @@ class SaveReminderFragment : BaseFragment() {
 
         binding.saveReminder.setOnClickListener {
             val title = _viewModel.reminderTitle.value
-            val description = _viewModel.reminderDescription
+            val description = _viewModel.reminderDescription.value
             val location = _viewModel.reminderSelectedLocationStr.value
             val latitude = _viewModel.latitude.value
             val longitude = _viewModel.longitude.value
@@ -127,9 +129,11 @@ class SaveReminderFragment : BaseFragment() {
                 }
             }
 
+            //  TODO: 2) save the reminder to the local db (x)
+            val reminder = ReminderDataItem(title, description, location, latitude, longitude)
+            _viewModel.validateAndSaveReminder(reminder)
 
-
-            //  2) save the reminder to the local db
+            _viewModel.navigationCommand.value = NavigationCommand.Back
         }
     }
 
