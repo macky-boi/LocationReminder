@@ -37,19 +37,21 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                 Log.v(TAG, context.getString(R.string.geofence_entered))
 
                 val triggeredGeofence = geofencingEvent.triggeringGeofences
-                val fenceId = when {
+                val fenceIds: List<String> = when {
                     triggeredGeofence.isNullOrEmpty().not() ->
-                        geofencingEvent.triggeringGeofences?.get(0)?.requestId
+                        geofencingEvent.triggeringGeofences?.map {
+                            it.requestId
+                        }!!
                     else -> {
                         Log.e(TAG, "No Geofence Trigger Found! Abort mission!")
                         return
                     }
                 }
 
-                Log.e(TAG, "fenceId: $fenceId")
+                Log.e(TAG, "fenceId: $fenceIds")
 
                 val serviceIntent = Intent(context, GeofenceTransitionsJobIntentService::class.java).apply {
-                    putExtra("fenceId", fenceId)
+                    putExtra("fenceIds", ArrayList(fenceIds))
                 }
 
                 GeofenceTransitionsJobIntentService.enqueueWork(context, serviceIntent)
