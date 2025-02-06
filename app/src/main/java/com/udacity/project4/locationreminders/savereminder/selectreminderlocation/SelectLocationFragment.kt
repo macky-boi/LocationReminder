@@ -39,6 +39,7 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PointOfInterest
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
@@ -272,9 +273,16 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
             mMap.isMyLocationEnabled = true
             Log.i(TAG, "enableMyLocation - enabled")
 
-            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+            val cancellationTokenSource = CancellationTokenSource()
+
+            fusedLocationProviderClient.getCurrentLocation(
+                Priority.PRIORITY_HIGH_ACCURACY,  // Request high accuracy for the current location.
+                cancellationTokenSource.token
+            ).addOnSuccessListener { location ->
+                Log.i(TAG, "enableMyLocation - getCurrentLocation. location: $location")
                 location?.let {
                     val userLatLng = LatLng(location.latitude, location.longitude)
+                    Log.i(TAG, "enableMyLocation - move camera to location")
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15f))
                 }
             }

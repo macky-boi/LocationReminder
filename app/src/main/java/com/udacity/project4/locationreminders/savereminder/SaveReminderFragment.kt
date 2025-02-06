@@ -37,8 +37,6 @@ class SaveReminderFragment : BaseFragment() {
         const val TAG = "SaveReminderFragment"
     }
 
-
-
     // Get the view model this time as a single to be shared with the another fragment
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSaveReminderBinding
@@ -61,7 +59,6 @@ class SaveReminderFragment : BaseFragment() {
                 Log.e(TAG, "Failed to remove geofences", e)
             }
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -134,7 +131,6 @@ class SaveReminderFragment : BaseFragment() {
             //  TODO: 2) save the reminder to the local db (x)
 
             _viewModel.validateAndSaveReminder(reminder)
-
             _viewModel.navigationCommand.value = NavigationCommand.Back
         }
     }

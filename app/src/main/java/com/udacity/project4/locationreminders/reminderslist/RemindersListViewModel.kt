@@ -51,6 +51,13 @@ class RemindersListViewModel(
         }
     }
 
+    fun deleteAllReminders() {
+        viewModelScope.launch {
+            dataSource.deleteAllReminders()
+            showToast.value = "Removed all reminders!"
+        }
+    }
+
     /**
      * Inform the user that there's not any data if the remindersList is empty
      */
