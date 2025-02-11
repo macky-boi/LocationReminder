@@ -29,27 +29,6 @@ class AuthenticationActivity : AppCompatActivity() {
         AUTHENTICATED, UNAUTHENTICATED, INVALID_AUTHENTICATION
     }
 
-    private val signInLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            Log.i(TAG, "signInLauncher. result: $result")
-            if (result.resultCode == Activity.RESULT_OK) {
-                // User successfully signed in
-                val user = FirebaseAuth.getInstance().currentUser
-                Log.i(TAG, "Successfully signed in user ${user?.displayName}!")
-            } else {
-                // Sign-in failed
-                Log.i(TAG, "Sign in unsuccessful")
-            }
-        }
-
-    private val authenticationState = FirebaseUserLiveData().map { user ->
-        if (user != null) {
-            AuthenticationState.AUTHENTICATED
-        } else {
-            AuthenticationState.UNAUTHENTICATED
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "onCreate")
         super.onCreate(savedInstanceState)
@@ -64,6 +43,14 @@ class AuthenticationActivity : AppCompatActivity() {
 
         // TODO: a bonus is to customize the sign in flow to look nice using :
         //https://github.com/firebase/FirebaseUI-Android/blob/master/auth/README.md#custom-layout
+    }
+
+    private val authenticationState = FirebaseUserLiveData().map { user ->
+        if (user != null) {
+            AuthenticationState.AUTHENTICATED
+        } else {
+            AuthenticationState.UNAUTHENTICATED
+        }
     }
 
     private fun observeAuthenticationState() {
@@ -83,6 +70,18 @@ class AuthenticationActivity : AppCompatActivity() {
     }
 
 
+    private val signInLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            Log.i(TAG, "signInLauncher. result: $result")
+            if (result.resultCode == Activity.RESULT_OK) {
+                // User successfully signed in
+                val user = FirebaseAuth.getInstance().currentUser
+                Log.i(TAG, "Successfully signed in user ${user?.displayName}!")
+            } else {
+                // Sign-in failed
+                Log.i(TAG, "Sign in unsuccessful")
+            }
+        }
 
     private fun launchSignInFlow() {
         val providers = arrayListOf(

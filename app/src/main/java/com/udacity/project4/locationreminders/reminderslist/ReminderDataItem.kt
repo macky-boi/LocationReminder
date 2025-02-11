@@ -1,5 +1,6 @@
 package com.udacity.project4.locationreminders.reminderslist
 
+import android.os.Parcelable
 import java.io.Serializable
 import java.util.*
 

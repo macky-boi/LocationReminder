@@ -80,9 +80,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
         val layoutId = R.layout.fragment_select_location
         binding = DataBindingUtil.inflate(inflater, layoutId, container, false)
 
-        binding.viewModel = _viewModel
-        binding.lifecycleOwner = this
-
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
 
@@ -109,17 +106,23 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
         }
         checkPermissionsAndEnableLocation()
 
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.viewModel = _viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
+
         binding.saveButton.setOnClickListener {
             // TODO: call this function after the user confirms on the selected location (x)
             onLocationSelected()
         }
 
-
         haveSelected.observe(viewLifecycleOwner, Observer {
             binding.saveButton.isEnabled = haveSelected.value ?: false
         })
-
-        return binding.root
     }
 
     private fun getStreetName(lat: Double, lon: Double, context: Context, onResult: (String) -> Unit) {

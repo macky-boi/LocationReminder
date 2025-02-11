@@ -67,7 +67,6 @@ class SaveReminderFragment : BaseFragment() {
         binding = DataBindingUtil.inflate(inflater, layoutId, container, false)
 
         setDisplayHomeAsUpEnabled(true)
-        binding.viewModel = _viewModel
 
         geofencingClient = LocationServices.getGeofencingClient(requireContext().applicationContext)
 
@@ -76,7 +75,8 @@ class SaveReminderFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.lifecycleOwner = this
+        binding.viewModel = _viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.selectLocation.setOnClickListener {
             // Navigate to another fragment to get the user location
             val directions = SaveReminderFragmentDirections
@@ -123,19 +123,18 @@ class SaveReminderFragment : BaseFragment() {
                         Log.i(TAG, "geofence added. requestId: ${geofence.requestId}")
                     }
                     addOnFailureListener {
-                        Log.i(TAG, "geofence FAILED to add: ${it.message}")
+                        Log.e(TAG, "geofence FAILED to add: ${it.message}")
                     }
                 }
             }
 
             //  TODO: 2) save the reminder to the local db (x)
-
             _viewModel.validateAndSaveReminder(reminder)
-            _viewModel.navigationCommand.value = NavigationCommand.Back
         }
     }
 
     override fun onDestroy() {
+        Log.i(TAG, "onDestroy")
         super.onDestroy()
         // Make sure to clear the view model after destroy, as it's a single view model.
         _viewModel.onClear()

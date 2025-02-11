@@ -3,6 +3,7 @@ package com.udacity.project4.locationreminders.data.local
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
@@ -13,7 +14,9 @@ import org.junit.runner.RunWith;
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi;
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
@@ -26,5 +29,88 @@ import org.junit.Test
 class RemindersDaoTest {
 
 //    TODO: Add testing implementation to the RemindersDao.kt
+
+    private lateinit var database: RemindersDatabase
+
+    // LiveData synchronization (database uses LiveData)
+    @get:Rule
+    var instantExecutorRule = InstantTaskExecutorRule()
+
+    @Before
+    fun initDb() {
+        database = Room.inMemoryDatabaseBuilder(
+            getApplicationContext(),
+            RemindersDatabase::class.java
+        ).build()
+    }
+
+    @After
+    fun closeDB() = database.close()
+
+    @Test
+    fun saveReminderAndGetById() = runTest {
+        // GIVEN - save a reminder
+        val reminder = ReminderDTO(
+        title = "Doctor's Appointment",
+        description = "Visit Dr. Smith for a check-up",
+        location = "City Hospital",
+        latitude = 37.7749,
+        longitude = -122.4194)
+        database.reminderDao().saveReminder(reminder)
+
+        // WHEN - get reminder by id from database
+        val loaded = database.reminderDao().getReminderById(reminder.id)
+
+        // THEN - loaded data contains expected values
+        assertThat(loaded as ReminderDTO, notNullValue())
+        assertThat(loaded.id, `is` (reminder.id))
+        assertThat(loaded.title, `is` (reminder.title))
+        assertThat(loaded.description, `is` (reminder.description))
+        assertThat(loaded.latitude, `is` (reminder.latitude))
+        assertThat(loaded.longitude, `is` (reminder.longitude))
+    }
+
+    @Test
+    fun saveRemindersAndGetAllAndDeleteAll() = runTest {
+        val reminder1 = ReminderDTO(
+            title = "Doctor's Appointment",
+            description = "Visit Dr. Smith for a check-up",
+            location = "City Hospital",
+            latitude = 37.7749,
+            longitude = -122.4194
+        )
+
+        val reminder2 = ReminderDTO(
+            title = "Grocery Shopping",
+            description = "Buy vegetables and fruits",
+            location = "Supermart",
+            latitude = 40.7128,
+            longitude = -74.0060
+        )
+
+        val reminder3 = ReminderDTO(
+            title = "Meeting with Client",
+            description = "Discuss project details",
+            location = "Downtown Cafe",
+            latitude = 34.0522,
+            longitude = -118.2437
+        )
+
+        database.reminderDao().saveReminder(reminder1)
+        database.reminderDao().saveReminder(reminder2)
+        database.reminderDao().saveReminder(reminder3)
+
+        var loaded = database.reminderDao().getReminders()
+
+        assertThat(loaded.count(), `is`(3))
+
+        database.reminderDao().deleteAllReminders()
+
+        loaded = database.reminderDao().getReminders()
+
+        assertThat(loaded.count(), `is`(0))
+
+
+    }
 
 }

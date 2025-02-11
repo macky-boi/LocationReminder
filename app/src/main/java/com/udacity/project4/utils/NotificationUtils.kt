@@ -34,9 +34,13 @@ fun sendNotification(context: Context, reminderDataItem: ReminderDataItem) {
     val intent = ReminderDescriptionActivity.newIntent(context.applicationContext, reminderDataItem)
 
     //create a pending intent that opens ReminderDescriptionActivity when the user clicks on the notification
+
+    // TaskStackBuilder helps in constructing a proper back stack for the activity being launched via the notification.
+    // ensures that when the user taps the notification and then presses Back, they navigate properly within the app instead of exiting abruptly.
     val stackBuilder = TaskStackBuilder.create(context)
         .addParentStack(ReminderDescriptionActivity::class.java)
         .addNextIntent(intent)
+
     val notificationPendingIntent = stackBuilder
         .getPendingIntent(getUniqueId(), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
