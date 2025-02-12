@@ -50,16 +50,6 @@ class SaveReminderFragment : BaseFragment() {
         PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
     }
 
-    private fun removeAllGeofences() {
-        geofencingClient.removeGeofences(geofencePendingIntent)
-            .addOnSuccessListener {
-                Log.i(TAG, "All geofences removed")
-            }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "Failed to remove geofences", e)
-            }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -71,6 +61,16 @@ class SaveReminderFragment : BaseFragment() {
         geofencingClient = LocationServices.getGeofencingClient(requireContext().applicationContext)
 
         return binding.root
+    }
+
+    private fun removeAllGeofences() {
+        geofencingClient.removeGeofences(geofencePendingIntent)
+            .addOnSuccessListener {
+                Log.i(TAG, "All geofences removed")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Failed to remove geofences", e)
+            }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -87,20 +87,15 @@ class SaveReminderFragment : BaseFragment() {
         removeAllGeofences()
 
         binding.saveReminder.setOnClickListener {
-            val title = _viewModel.reminderTitle.value
-            val description = _viewModel.reminderDescription.value
-            val location = _viewModel.reminderSelectedLocationStr.value
-            val latitude = _viewModel.latitude.value
-            val longitude = _viewModel.longitude.value
 
-            val reminder = ReminderDataItem(title, description, location, latitude, longitude)
+            val reminder = ReminderDataItem(_viewModel.reminderTitle.value, _viewModel.reminderDescription.value, _viewModel.reminderSelectedLocationStr.value, _viewModel.latitude.value, _viewModel.longitude.value)
 
             // TODO: use the user entered reminder details to:
-            //  1) add a geofencing request
+            //  1) add a geofencing request (x)
             val geofence = Geofence.Builder()
                 .setRequestId(reminder.id)
-                .setCircularRegion(latitude!!,
-                    longitude!!,
+                .setCircularRegion(reminder.latitude!!,
+                    reminder.longitude!!,
                     GEOFENCE_RADIUS_IN_METERS
                 )
                 .setExpirationDuration(GEOFENCE_EXPIRATION_IN_MILLISECONDS)

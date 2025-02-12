@@ -81,7 +81,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
         binding = DataBindingUtil.inflate(inflater, layoutId, container, false)
 
         setHasOptionsMenu(true)
-        setDisplayHomeAsUpEnabled(true)
 
         // TODO: add the map setup implementation (x)
         val mapFragment = childFragmentManager
@@ -104,14 +103,15 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
                 }.show()
             }
         }
-        checkPermissionsAndEnableLocation()
 
+        checkPermissionsAndEnableLocation()
 
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setDisplayHomeAsUpEnabled(true)
         binding.viewModel = _viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
@@ -157,6 +157,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
 
             currentLongitude = longitude
             currentLatitude = latitude
+
             getStreetName(latitude, longitude, requireContext(), {
                 streetName ->
                 Log.i(TAG, "streetName: $streetName")
@@ -165,6 +166,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
 
             haveSelected.value = true
         }
+
         map.setOnPoiClickListener { poi ->
             val longitude = poi.latLng.longitude
             val latitude  = poi.latLng.latitude
@@ -175,6 +177,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
             currentSelectedPOI = poi
             currentLongitude = longitude
             currentLatitude = latitude
+
             getStreetName(latitude, longitude, requireContext(), {
                     streetName ->
                 Log.i(TAG, "streetName: $streetName")
@@ -234,10 +237,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
 
     private fun checkDeviceLocationSettingsAndStartLocation(resolve:Boolean = true) {
         Log.i(TAG, "checkDeviceLocationSettingsAndStartLocation")
+
         val locationRequest = LocationRequest.Builder(10000)
             .setMinUpdateIntervalMillis(5000)
             .build()
-
         val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
 
         val settingsClient = LocationServices.getSettingsClient(requireContext())
@@ -246,6 +249,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
 
         locationSettingsResponseTask.addOnFailureListener { exception ->
             Log.i(TAG, "checkDeviceLocationSettingsAndStartLocation - addOnFailureListener")
+
             if (exception is ResolvableApiException && resolve){
                 try {
                     Log.i(TAG, "checkDeviceLocationSettingsAndStartLocation - attempting REQUEST_TURN_DEVICE_LOCATION_ON")
@@ -259,6 +263,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback{
                 _viewModel.navigationCommand.value = NavigationCommand.Back
                 _viewModel.showToast.value = "Device location settings is required"
             }
+
         }
         locationSettingsResponseTask.addOnCompleteListener {
             Log.i(TAG, "checkDeviceLocationSettingsAndStartLocation - addOnCompleteListener")

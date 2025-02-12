@@ -33,11 +33,10 @@ class ReminderListFragment : BaseFragment() {
         binding = DataBindingUtil.inflate(inflater,
             R.layout.fragment_reminders, container, false
         )
-        binding.viewModel = _viewModel
+
         setHasOptionsMenu(true)
-        setDisplayHomeAsUpEnabled(false)
-        setTitle(getString(R.string.app_name))
-        binding.refreshLayout.setOnRefreshListener { _viewModel.loadReminders() }
+
+
         return binding.root
 
     }
@@ -45,11 +44,17 @@ class ReminderListFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setDisplayHomeAsUpEnabled(false)
+        setTitle(getString(R.string.app_name))
+
         binding.lifecycleOwner = viewLifecycleOwner
-        setupRecyclerView()
+        binding.viewModel = _viewModel
+        binding.refreshLayout.setOnRefreshListener { _viewModel.loadReminders() }
         binding.addReminderFAB.setOnClickListener {
             navigateToAddReminder()
         }
+
+        setupRecyclerView()
     }
 
     override fun onResume() {
@@ -70,7 +75,6 @@ class ReminderListFragment : BaseFragment() {
         val adapter = RemindersListAdapter {}
         // Setup the recycler view using the extension function
         binding.reminderssRecyclerView.setup(adapter)
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
