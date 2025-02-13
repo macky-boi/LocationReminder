@@ -76,4 +76,12 @@ class RemindersListViewModelTest {
         assertThat(remindersListViewModel.remindersList.value.isNullOrEmpty(), `is` (false))
         assertThat(remindersListViewModel.remindersList.value?.count(), `is` (3))
     }
+
+    @Test
+    fun loadRemindersWhenRemindersAreUnavailable_callErrorToDisplay() {
+        assertThat(remindersListViewModel.showSnackBar.value.isNullOrEmpty(), `is` (true))
+        dataSource.setReturnError(true)
+        remindersListViewModel.loadReminders()
+        assertThat(remindersListViewModel.showSnackBar.value.isNullOrEmpty(), `is` (false))
+    }
 }
