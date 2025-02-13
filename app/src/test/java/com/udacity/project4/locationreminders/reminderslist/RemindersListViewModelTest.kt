@@ -8,12 +8,15 @@ import com.udacity.project4.locationreminders.MainCoroutineRule
 import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.pauseDispatcher
+import kotlinx.coroutines.test.runTest
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.Is.`is`
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.stopKoin
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
@@ -65,12 +68,14 @@ class RemindersListViewModelTest {
         )
         dataSource.addReminders(reminder1, reminder2, reminder3)
 
+        stopKoin()
         val application = ApplicationProvider.getApplicationContext<Application>()
+
         remindersListViewModel = RemindersListViewModel(application, dataSource)
     }
 
     @Test
-    fun loadReminders_updatesRemindersList() {
+    fun loadReminders_updatesRemindersList()  {
         assertThat(remindersListViewModel.remindersList.value.isNullOrEmpty(), `is` (true))
         remindersListViewModel.loadReminders()
         assertThat(remindersListViewModel.remindersList.value.isNullOrEmpty(), `is` (false))
@@ -84,4 +89,9 @@ class RemindersListViewModelTest {
         remindersListViewModel.loadReminders()
         assertThat(remindersListViewModel.showSnackBar.value.isNullOrEmpty(), `is` (false))
     }
+
+//    @Test
+//    fun loadReminders_loading() {
+//        mainCoroutineRule.pauseDispatcher()
+//    }
 }
