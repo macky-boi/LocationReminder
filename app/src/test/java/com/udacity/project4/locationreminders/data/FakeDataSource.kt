@@ -2,6 +2,7 @@ package com.udacity.project4.locationreminders.data
 
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.dto.Result
+import kotlinx.coroutines.runBlocking
 
 //Use FakeDataSource that acts as a test double to the LocalDataSource
 class FakeDataSource(var reminders: MutableList<ReminderDTO>? = mutableListOf()) : ReminderDataSource {
@@ -33,6 +34,14 @@ class FakeDataSource(var reminders: MutableList<ReminderDTO>? = mutableListOf())
     override suspend fun deleteAllReminders() {
 //        TODO("delete all the reminders") (x)
         reminders?.clear()
+    }
+
+    fun addReminders(vararg reminders: ReminderDTO) {
+        for (reminder in reminders) {
+            runBlocking {
+                saveReminder(reminder)
+            }
+        }
     }
 
 
