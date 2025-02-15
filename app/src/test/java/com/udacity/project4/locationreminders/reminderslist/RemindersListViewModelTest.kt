@@ -117,4 +117,11 @@ class RemindersListViewModelTest {
         advanceUntilIdle()
         assertThat(remindersListViewModel.showLoading.value, `is` (false))
     }
+
+    @Test
+    fun loadReminders_noData_showNoDataIsTrue() = runTest {
+        dataSource.deleteAllReminders()
+        remindersListViewModel.loadReminders()
+        assertThat(remindersListViewModel.showNoData.value, `is` (true))
+    }
 }
