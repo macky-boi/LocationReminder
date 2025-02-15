@@ -9,7 +9,9 @@ import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import kotlinx.coroutines.Dispatchers
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -111,8 +113,15 @@ class SaveReminderViewModelTest {
     }
 
     @Test
-    fun validateAndSaveReminder() {
+    fun validateAndSaveReminder_loading() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        Dispatchers.setMain(testDispatcher)
 
+        saveReminderViewModel.validateAndSaveReminder(reminder)
+
+        assertThat(saveReminderViewModel.showLoading.value, `is` (true))
+        advanceUntilIdle()
+        assertThat(saveReminderViewModel.showLoading.value, `is` (false))
     }
 
 
