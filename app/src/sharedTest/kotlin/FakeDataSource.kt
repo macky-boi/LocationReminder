@@ -1,11 +1,13 @@
-package com.udacity.project4.locationreminders.data
+package com.udacity.project4.locationreminders.data.kotlin
 
+import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.dto.Result
 import kotlinx.coroutines.runBlocking
 
 //Use FakeDataSource that acts as a test double to the LocalDataSource
-class FakeDataSource(var reminders: MutableList<ReminderDTO>? = mutableListOf()) : ReminderDataSource {
+class FakeDataSource(var reminders: MutableList<ReminderDTO>? = mutableListOf()) :
+    ReminderDataSource {
 
 //    TODO: Create a fake data source to act as a double to the real data source
 

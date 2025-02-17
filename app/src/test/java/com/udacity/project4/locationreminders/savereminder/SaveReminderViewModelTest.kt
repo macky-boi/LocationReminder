@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.udacity.project4.locationreminders.data.FakeDataSource
+import com.udacity.project4.locationreminders.data.kotlin.FakeDataSource
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import kotlinx.coroutines.Dispatchers
 
@@ -29,7 +29,7 @@ import org.koin.core.context.stopKoin
 class SaveReminderViewModelTest {
 
 
-    //TODO: provide testing to the SaveReminderView and its live data objects
+    //TODO: provide testing to the SaveReminderView and its live data objects (x)
 
     private lateinit var saveReminderViewModel: SaveReminderViewModel
 

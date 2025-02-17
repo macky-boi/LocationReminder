@@ -4,15 +4,13 @@ import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.udacity.project4.locationreminders.MainCoroutineRule
-import com.udacity.project4.locationreminders.data.FakeDataSource
+import com.udacity.project4.locationreminders.data.kotlin.FakeDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.pauseDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -44,8 +42,11 @@ class RemindersListViewModelTest {
 
 
     // for: LiveData
-    // forces LiveData to execute synchronously and immediately
-    // prevents: Delayed LiveData updates
+    // runTest only controls coroutine execution within the test scope.
+    // However, LiveData observers run on the Android main thread and rely on the
+    // Architecture Components’ background executors for their behavior.
+    // It replaces the Android background executor used by LiveData with a synchronous one for the
+    // duration of your test.
     @get:Rule
     var instantExecutorRule = InstantTaskExecutorRule()
 
