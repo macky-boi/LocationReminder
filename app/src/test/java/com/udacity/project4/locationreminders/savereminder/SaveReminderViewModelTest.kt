@@ -4,10 +4,11 @@ import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.udacity.project4.locationreminders.data.kotlin.FakeDataSource
+import com.udacity.project4.locationreminders.ReminderTestData
+import com.udacity.project4.locationreminders.data.FakeDataSource
+import com.udacity.project4.locationreminders.data.dto.toReminderDataItem
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import kotlinx.coroutines.Dispatchers
-
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -40,13 +41,7 @@ class SaveReminderViewModelTest {
     @get:Rule
     var instantExecutorRule = InstantTaskExecutorRule()
 
-    private var reminder = ReminderDataItem(
-        title = "Doctor's Appointment",
-        description = "Visit Dr. Smith for a check-up",
-        location = "City Hospital",
-        latitude = 37.7749,
-        longitude = -122.4194
-    )
+    private var reminder = ReminderTestData.reminder1.toReminderDataItem()
 
     @Before
     fun setupViewModel() {

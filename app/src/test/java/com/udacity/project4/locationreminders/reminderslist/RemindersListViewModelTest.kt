@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.udacity.project4.locationreminders.data.kotlin.FakeDataSource
+import com.udacity.project4.locationreminders.ReminderTestData
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,6 +22,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.stopKoin
+import com.udacity.project4.locationreminders.data.FakeDataSource
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
@@ -55,28 +56,11 @@ class RemindersListViewModelTest {
     @Before
     fun setupViewModel() {
         dataSource = FakeDataSource()
-        val reminder1 = ReminderDTO(
-            title = "Doctor's Appointment",
-            description = "Visit Dr. Smith for a check-up",
-            location = "City Hospital",
-            latitude = 37.7749,
-            longitude = -122.4194
-        )
-        val reminder2 = ReminderDTO(
-            title = "Grocery Shopping",
-            description = "Buy vegetables and fruits",
-            location = "Supermart",
-            latitude = 40.7128,
-            longitude = -74.0060
-        )
-        val reminder3 = ReminderDTO(
-            title = "Meeting with Client",
-            description = "Discuss project details",
-            location = "Downtown Cafe",
-            latitude = 34.0522,
-            longitude = -118.2437
-        )
-        dataSource.addReminders(reminder1, reminder2, reminder3)
+
+        dataSource.addReminders(
+            ReminderTestData.reminder1,
+            ReminderTestData.reminder2,
+            ReminderTestData.reminder3)
 
         stopKoin()
         val application = ApplicationProvider.getApplicationContext<Application>()

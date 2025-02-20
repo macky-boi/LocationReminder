@@ -38,17 +38,6 @@ android {
         dataBinding true
         buildConfig true
     }
-
-    android {
-        sourceSets {
-            getByName("test") {
-                kotlin.srcDirs("src/sharedTest/kotlin")
-            }
-            getByName("androidTest") {
-                kotlin.srcDirs("src/sharedTest/kotlin")
-            }
-        }
-    }
 }
 
 dependencies {
@@ -70,7 +59,8 @@ dependencies {
 
     // Room dependencies
     implementation "androidx.room:room-runtime:$roomVersion"
-    implementation 'androidx.media3:media3-test-utils:1.5.1'
+//    implementation 'androidx.media3:media3-test-utils:1.5.1'
+    androidTestImplementation project(':app')
     kapt "androidx.room:room-compiler:$roomVersion"
         // Kotlin Extensions and Coroutines support for Room
     implementation "androidx.room:room-ktx:$roomVersion"

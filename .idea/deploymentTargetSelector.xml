@@ -13,7 +13,13 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="saveReminderAndGetById()">
+      <SelectionState runConfigName="saveReminderAndGetReminderById()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="saveRemindersAndGetReminderById()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="saveRemindersAndGetReminderByIdAndDeleteAll()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

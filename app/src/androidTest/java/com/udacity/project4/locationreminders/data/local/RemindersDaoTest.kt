@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
+import com.udacity.project4.ReminderTestData
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 
 import org.junit.Before;
@@ -49,13 +50,8 @@ class RemindersDaoTest {
 
     @Test
     fun saveReminderAndGetById() = runTest {
-        // GIVEN - save a reminder
-        val reminder = ReminderDTO(
-        title = "Doctor's Appointment",
-        description = "Visit Dr. Smith for a check-up",
-        location = "City Hospital",
-        latitude = 37.7749,
-        longitude = -122.4194)
+        val reminder = ReminderTestData.reminder1
+
         database.reminderDao().saveReminder(reminder)
 
         // WHEN - get reminder by id from database
@@ -72,33 +68,9 @@ class RemindersDaoTest {
 
     @Test
     fun saveRemindersAndGetAllAndDeleteAll() = runTest {
-        val reminder1 = ReminderDTO(
-            title = "Doctor's Appointment",
-            description = "Visit Dr. Smith for a check-up",
-            location = "City Hospital",
-            latitude = 37.7749,
-            longitude = -122.4194
-        )
-
-        val reminder2 = ReminderDTO(
-            title = "Grocery Shopping",
-            description = "Buy vegetables and fruits",
-            location = "Supermart",
-            latitude = 40.7128,
-            longitude = -74.0060
-        )
-
-        val reminder3 = ReminderDTO(
-            title = "Meeting with Client",
-            description = "Discuss project details",
-            location = "Downtown Cafe",
-            latitude = 34.0522,
-            longitude = -118.2437
-        )
-
-        database.reminderDao().saveReminder(reminder1)
-        database.reminderDao().saveReminder(reminder2)
-        database.reminderDao().saveReminder(reminder3)
+        database.reminderDao().saveReminder(ReminderTestData.reminder1)
+        database.reminderDao().saveReminder(ReminderTestData.reminder2)
+        database.reminderDao().saveReminder(ReminderTestData.reminder3)
 
         var loaded = database.reminderDao().getReminders()
 
