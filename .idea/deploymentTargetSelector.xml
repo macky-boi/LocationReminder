@@ -22,6 +22,12 @@
       <SelectionState runConfigName="saveRemindersAndGetReminderByIdAndDeleteAll()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="clickAddReminder_navigatesToSaveReminder()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="RemindersActivityTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

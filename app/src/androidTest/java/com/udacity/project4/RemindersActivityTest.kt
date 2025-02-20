@@ -1,18 +1,28 @@
 package com.udacity.project4
 
 import android.app.Application
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.matcher.ViewMatchers.assertThat
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.util.DataBindingIdlingResource
+import com.udacity.project4.util.monitorActivity
 import com.udacity.project4.utils.EspressoIdlingResource
 import kotlinx.coroutines.runBlocking
+import org.hamcrest.Matchers.`is`
 import org.junit.After
 import org.junit.Before
 import org.junit.runner.RunWith
@@ -22,6 +32,7 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.get
+import kotlin.test.Test
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -56,7 +67,7 @@ class RemindersActivityTest :
                     get() as ReminderDataSource
                 )
             }
-            single { RemindersLocalRepository(get()) }
+            single<ReminderDataSource> { RemindersLocalRepository(get()) }
             single { LocalDB.createRemindersDao(appContext) }
         }
         //declare a new koin module
@@ -93,6 +104,20 @@ class RemindersActivityTest :
 
 
 //    TODO: add End to End testing to the app
-    // press add reminder button -> inpu
+    // press add reminder button -> input
+    @Test
+    fun clickAddReminder_navigatesToSaveReminder() {
+        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+        onView(withId(R.id.addReminderFAB)).perform(click())
+
+        activityScenario.onActivity { activity ->
+            val navController = Navigation.findNavController(activity, R.id.nav_host_fragment)
+            assertThat(navController.currentDestination?.id, `is` (R.id.saveReminderFragment))
+        }
+
+        activityScenario.close()
+    }
 
 }
