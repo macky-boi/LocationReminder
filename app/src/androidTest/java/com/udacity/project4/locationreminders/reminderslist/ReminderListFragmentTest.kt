@@ -24,7 +24,11 @@ import com.udacity.project4.ReminderTestData
 import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
+import com.udacity.project4.locationreminders.data.local.LocalDB
+import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
+import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.MatcherAssert
 import org.hamcrest.core.Is.`is`
@@ -43,12 +47,38 @@ import org.koin.dsl.module
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.hamcrest.MatcherAssert.assertThat
+import org.koin.test.KoinTest
+import org.koin.test.get
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
 //UI Testing
 @MediumTest
-class ReminderListFragmentTest {
+class ReminderListFragmentTest: KoinTest {
+
+    private lateinit var fakeDataSource: FakeDataSource
+
+    @Before
+    fun init() {
+        stopKoin()//stop the original app koin
+        val appContext = getApplicationContext<Application>()
+        val myModule = module {
+            viewModel {
+                RemindersListViewModel(
+                    appContext,
+                    get() as FakeDataSource
+                )
+            }
+            single { FakeDataSource() }
+        }
+        //declare a new koin module
+        startKoin {
+            modules(listOf(myModule))
+        }
+        fakeDataSource = get()
+
+        runTest {  fakeDataSource.deleteAllReminders() }
+    }
 
 //    TODO: test the navigation of the fragments.
     @Test
@@ -66,28 +96,6 @@ class ReminderListFragmentTest {
         )
     }
 
-
-//    TODO: test the displayed data on the UI.
-    private val fakeDataSource = FakeDataSource()
-
-    private val testModule = module {
-        single { fakeDataSource as ReminderDataSource}
-    }
-
-    @Before
-    fun setup() = runTest {
-//        startKoin {
-//            androidContext(ApplicationProvider.getApplicationContext<Application>())
-//            modules(listOf(testModule))
-//        }
-        loadKoinModules(testModule)
-    }
-
-    @After
-    fun cleanupDb() = runTest {
-        fakeDataSource.deleteAllReminders()
-        unloadKoinModules(testModule)
-    }
 
     @Test
     fun noReminders_noDataTextViewDisplayed() = runTest {
